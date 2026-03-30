@@ -1,3 +1,2 @@
-# Ignore the root Run_Auto.bat for convenience
-/Run_Auto.bat
+# Keep root scripts
 /__pycache__/
