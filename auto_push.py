@@ -3,7 +3,8 @@ import os
 
 def run_command(command):
     try:
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+        # Sử dụng errors='replace' để tránh lỗi UnicodeDecodeError trên Windows
+        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True, errors='replace')
         print(f"Lệnh: {command}\nKết quả: {result.stdout}")
     except subprocess.CalledProcessError as e:
         if "is not recognized" in e.stderr or "not found" in e.stderr.lower():
@@ -65,7 +66,20 @@ def push_to_github(commit_message="Add new exercises"):
     print("Đang đẩy code lên GitHub...")
     # Đảm bảo nhánh hiện tại là 'main'
     run_command("git branch -M main")
-    run_command("git push -u origin main") 
+    
+    # Thử push, nếu bị từ chối thì pull trước
+    try:
+        subprocess.run("git push -u origin main", shell=True, check=True, capture_output=True, text=True, errors='replace')
+        print("Đẩy code thành công!")
+    except subprocess.CalledProcessError as e:
+        if "rejected" in e.stderr:
+            print("\nKho lưu trữ GitHub có nội dung mới. Đang đồng bộ (pull) trước khi push...")
+            # Cho phép merge các lịch sử không liên quan nếu cần
+            if run_command("git pull origin main --rebase"):
+                print("Đã đồng bộ xong. Đang thử đẩy lại...")
+                run_command("git push -u origin main")
+        else:
+            print(f"Lỗi khi đẩy code: {e.stderr}")
 
 if __name__ == "__main__":
     push_to_github()
