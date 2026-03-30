@@ -24,11 +24,66 @@ def generate_code_placeholder(exercise_description):
     """
     Hàm này trong thực tế sẽ gọi AI API (OpenAI, Gemini, v.v.)
     Để giải quyết đề bài đã cho.
-    Dưới đây là giả lập cho Bài 4 và Bài 5.
     """
     normalized = normalize_text(exercise_description)
     
-    if re.search(r"bai\s*4", normalized):
+    if re.search(r"bai\s*1", normalized):
+        return "Bai1.py", """# Bài 1: Viết chương trình nhập vào một số nguyên dương và in "Đây là một số chẵn" nếu nó chẵn và in "Đây là một số lẻ" nếu là số lẻ.
+def main():
+    try:
+        n = int(input("Nhập vào một số nguyên dương: "))
+        if n > 0:
+            if n % 2 == 0:
+                print("Đây là một số chẵn")
+            else:
+                print("Đây là một số lẻ")
+        else:
+            print("Vui lòng nhập một số nguyên dương.")
+    except ValueError:
+        print("Dữ liệu không hợp lệ.")
+
+if __name__ == "__main__":
+    main()
+"""
+    elif re.search(r"bai\s*2", normalized):
+        return "Bai2.py", """# Bài 2: Nhập vào 3 số nguyên dương _a, _b, _c và in "Độ dài ba canh tam giác" nếu nó thỏa mãn.
+def main():
+    try:
+        a = int(input("Nhập _a: "))
+        b = int(input("Nhập _b: "))
+        c = int(input("Nhập _c: "))
+        if a > 0 and b > 0 and c > 0:
+            if (a + b > c) and (a + c > b) and (b + c > a):
+                print("Độ dài ba canh tam giác")
+            else:
+                print("Đây không phải độ dài ba canh tam giác")
+        else:
+            print("Vui lòng nhập số dương.")
+    except ValueError:
+        print("Dữ liệu không hợp lệ.")
+
+if __name__ == "__main__":
+    main()
+"""
+    elif re.search(r"bai\s*3", normalized):
+        return "Bai3.py", """# Bài 3: Viết chương trình nhập vào năm sinh, in ra tuổi.
+import time
+def main():
+    try:
+        nam_sinh = int(input("Nhập năm sinh: "))
+        year = time.localtime()[0]
+        tuoi = year - nam_sinh
+        if tuoi >= 0:
+            print(f"Năm sinh {nam_sinh}, vậy bạn {tuoi} tuổi.")
+        else:
+            print("Năm sinh không hợp lệ.")
+    except ValueError:
+        print("Dữ liệu không hợp lệ.")
+
+if __name__ == "__main__":
+    main()
+"""
+    elif re.search(r"bai\s*4", normalized):
         return "Bai4.py", """# Bài 4: Viết chương trình nhập một số nguyên dương và kiểm tra xem số đó có chia hết cho 2 hoặc cho 3 hoặc cả hai hay không?
 
 def main():
@@ -94,14 +149,27 @@ def process_exercise(description):
     # 1. Tạo mã nguồn từ đề bài
     filename, code_content = generate_code_placeholder(description)
     
-    # 2. Lưu vào tệp
-    with open(filename, "w", encoding="utf-8") as f:
+    # 2. Quyết định thư mục lưu trữ (3.3 hoặc luyentap)
+    normalized = normalize_text(description)
+    if re.search(r"bai\s*[1-5]", normalized):
+        target_dir = "3.3"
+    else:
+        target_dir = "luyentap"
+        
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    
+    # Đường dẫn đầy đủ của file
+    file_path = os.path.join(target_dir, filename)
+    
+    # 3. Lưu vào tệp
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(code_content)
-    print(f"Đã lưu tệp: {filename}")
+    print(f"Đã lưu tệp: {file_path}")
 
-    # 3. Đẩy lên GitHub
+    # 4. Đẩy lên GitHub
     print("Đang chuẩn bị đẩy lên GitHub...")
-    push_to_github(f"Tự động thêm {filename} giải đề bài: {description[:30]}")
+    push_to_github(f"Tự động thêm {filename} vào {target_dir} giải đề bài: {description[:30]}")
 
 if __name__ == "__main__":
     print("--- Chương trình Tự động Giải và Đẩy Code lên GitHub ---")
