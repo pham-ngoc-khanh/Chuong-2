@@ -149,18 +149,23 @@ def process_exercise(description):
     # 1. Tạo mã nguồn từ đề bài
     filename, code_content = generate_code_placeholder(description)
     
+    # Xác định thư mục gốc của repository (là thư mục cha của script này)
+    current_script_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(current_script_dir)
+    
     # 2. Quyết định thư mục lưu trữ (3.3 hoặc luyentap)
     normalized = normalize_text(description)
     if re.search(r"bai\s*[1-5]", normalized):
-        target_dir = "3.3"
+        target_dir_name = "3.3"
     else:
-        target_dir = "luyentap"
+        target_dir_name = "luyentap"
         
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
+    target_dir_path = os.path.join(repo_root, target_dir_name)
+    if not os.path.exists(target_dir_path):
+        os.makedirs(target_dir_path)
     
     # Đường dẫn đầy đủ của file
-    file_path = os.path.join(target_dir, filename)
+    file_path = os.path.join(target_dir_path, filename)
     
     # 3. Lưu vào tệp
     with open(file_path, "w", encoding="utf-8") as f:
@@ -169,7 +174,9 @@ def process_exercise(description):
 
     # 4. Đẩy lên GitHub
     print("Đang chuẩn bị đẩy lên GitHub...")
-    push_to_github(f"Tự động thêm {filename} vào {target_dir} giải đề bài: {description[:30]}")
+    # Chuyển về thư mục gốc để chạy git
+    os.chdir(repo_root)
+    push_to_github(f"Tự động thêm {filename} vào {target_dir_name} giải đề bài: {description[:30]}")
 
 if __name__ == "__main__":
     print("--- Chương trình Tự động Giải và Đẩy Code lên GitHub ---")

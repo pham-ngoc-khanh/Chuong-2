@@ -1,0 +1,3 @@
+# Ignore the root Run_Auto.bat for convenience
+/Run_Auto.bat
+/__pycache__/
